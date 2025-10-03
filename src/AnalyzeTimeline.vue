@@ -42,8 +42,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { TimelineEvent, AnalyzeTimelineProps } from './types'
+import { ref, computed, onMounted } from 'vue'
+import type { TimelineEvent, AnalyzeTimelineProps } from './types/index'
 
 const props = withDefaults(defineProps<AnalyzeTimelineProps>(), {
   events: () => [
@@ -53,7 +53,8 @@ const props = withDefaults(defineProps<AnalyzeTimelineProps>(), {
     { id: '4', date: new Date('2024-08-15'), title: 'Event 4', description: 'Fourth event' },
     { id: '5', date: new Date('2024-09-22'), title: 'Event 5', description: 'Fifth event' },
   ],
-  selectedEventId: undefined
+  selectedEventId: undefined,
+  config: undefined
 })
 
 const emit = defineEmits<{
@@ -63,9 +64,17 @@ const emit = defineEmits<{
 
 const currentIndex = ref(0)
 const visibleCount = 3
+const databaseEvents = ref<TimelineEvent[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+
+const events = computed(() => {
+  // Use database events if available, otherwise use props.events
+  return databaseEvents.value.length > 0 ? databaseEvents.value : props.events
+})
 
 const visibleEvents = computed(() => {
-  return props.events.slice(currentIndex.value, currentIndex.value + visibleCount)
+  return events.value.slice(currentIndex.value, currentIndex.value + visibleCount)
 })
 
 const formatDate = (date: Date): string => {
@@ -86,7 +95,7 @@ const navigatePrev = () => {
 }
 
 const navigateNext = () => {
-  if (currentIndex.value < props.events.length - visibleCount) {
+  if (currentIndex.value < events.value.length - visibleCount) {
     currentIndex.value++
     emit('navigate', 'next')
   }
@@ -95,6 +104,55 @@ const navigateNext = () => {
 const selectEvent = (event: TimelineEvent) => {
   emit('event-selected', event)
 }
+
+// Fetch timeline dates from database
+const fetchTimelineDates = async () => {
+  if (!props.config?.enableDatabase || !props.config?.supabaseClient || !props.config?.userId) {
+    return
+  }
+
+  isLoading.value = true
+  error.value = null
+
+  try {
+    const { data, error: fetchError } = await props.config.supabaseClient
+      .schema('hf')
+      .from('ai_conversations')
+      .select('created_at')
+      .eq('user_id', props.config.userId)
+      .order('created_at', { ascending: false })
+
+    if (fetchError) {
+      throw fetchError
+    }
+
+    if (data && data.length > 0) {
+      // Extract unique dates
+      const uniqueDates = new Set<string>()
+      data.forEach((item: any) => {
+        const date = new Date(item.created_at).toISOString().split('T')[0]
+        uniqueDates.add(date)
+      })
+
+      // Convert to timeline events
+      databaseEvents.value = Array.from(uniqueDates).map((dateStr) => ({
+        id: dateStr,
+        date: new Date(dateStr),
+        title: `Conversations on ${dateStr}`,
+        description: `AI conversations from ${dateStr}`
+      }))
+    }
+  } catch (err: any) {
+    console.error('Error fetching timeline dates:', err)
+    error.value = err.message || 'Failed to fetch timeline data'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchTimelineDates()
+})
 </script>
 
 <style scoped>

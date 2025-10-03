@@ -1,4 +1,4 @@
-import { TimelineEvent, AnalyzeTimelineProps } from './types';
+import { TimelineEvent, AnalyzeTimelineProps } from './types/index';
 declare const _default: import('vue').DefineComponent<AnalyzeTimelineProps, {}, {}, {}, {}, import('vue').ComponentOptionsMixin, import('vue').ComponentOptionsMixin, {
     "event-selected": (event: TimelineEvent) => any;
     navigate: (direction: "prev" | "next") => any;
@@ -8,5 +8,6 @@ declare const _default: import('vue').DefineComponent<AnalyzeTimelineProps, {}, 
 }>, {
     events: TimelineEvent[];
     selectedEventId: string;
+    config: import('.').AnalyzeTimelineConfig;
 }, {}, {}, {}, string, import('vue').ComponentProvideOptions, false, {}, HTMLDivElement>;
 export default _default;
