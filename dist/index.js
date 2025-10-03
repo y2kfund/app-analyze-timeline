@@ -1,5 +1,5 @@
-import { defineComponent as f, ref as _, computed as E, createElementBlock as v, openBlock as c, createElementVNode as e, Fragment as x, renderList as y, normalizeStyle as C, normalizeClass as b, toDisplayString as D } from "vue";
-const L = { class: "analyze-timeline" }, z = ["disabled"], B = { class: "timeline-container" }, F = { class: "timeline-track" }, I = ["onClick"], S = { class: "timeline-date" }, T = ["disabled"], u = 3, j = /* @__PURE__ */ f({
+import { defineComponent as k, ref as _, computed as E, createElementBlock as v, openBlock as c, createElementVNode as e, Fragment as x, renderList as y, normalizeStyle as C, normalizeClass as b, toDisplayString as D } from "vue";
+const L = { class: "analyze-timeline" }, z = ["disabled"], B = { class: "timeline-container" }, F = { class: "timeline-track" }, I = ["onClick"], S = { class: "timeline-date" }, T = ["disabled"], u = 3, j = /* @__PURE__ */ k({
   __name: "AnalyzeTimeline",
   props: {
     events: { default: () => [
@@ -45,10 +45,10 @@ const L = { class: "analyze-timeline" }, z = ["disabled"], B = { class: "timelin
       e("div", B, [
         e("div", F, [
           n[2] || (n[2] = e("div", { class: "timeline-line" }, null, -1)),
-          (c(!0), v(x, null, y(r.value, (a, k) => (c(), v("div", {
+          (c(!0), v(x, null, y(r.value, (a, f) => (c(), v("div", {
             key: a.id,
             class: b(["timeline-event", { active: i.selectedEventId === a.id }]),
-            style: C({ left: `${g(k)}%` }),
+            style: C({ left: `${g(f)}%` }),
             onClick: (M) => w(a)
           }, [
             n[1] || (n[1] = e("div", { class: "timeline-dot" }, null, -1)),
@@ -86,5 +86,6 @@ const L = { class: "analyze-timeline" }, z = ["disabled"], B = { class: "timelin
   return l;
 }, P = /* @__PURE__ */ A(j, [["__scopeId", "data-v-73243ade"]]);
 export {
-  P as AnalyzeTimeline
+  P as AnalyzeTimeline,
+  P as default
 };
