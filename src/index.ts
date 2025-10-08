@@ -1,6 +1,6 @@
 import AnalyzeTimeline from './AnalyzeTimeline.vue'
-import ConversationModal from './ConversationModal.vue'
+import aiAnalyseTimelineConversationCard from './aiAnalyseTimelineConversationCard.vue'
 
-export { AnalyzeTimeline, ConversationModal }
+export { AnalyzeTimeline, aiAnalyseTimelineConversationCard }
 export * from './types'
 export default AnalyzeTimeline
