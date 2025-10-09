@@ -120,7 +120,7 @@ const fetchTimelineDates = async () => {
       .from('ai_conversations')
       .select('created_at')
       .eq('user_id', props.config.userId)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: true })
 
     if (fetchError) {
       throw fetchError
@@ -134,13 +134,19 @@ const fetchTimelineDates = async () => {
         uniqueDates.add(date)
       })
 
-      // Convert to timeline events
-      databaseEvents.value = Array.from(uniqueDates).map((dateStr) => ({
-        id: dateStr,
-        date: new Date(dateStr),
-        title: `Conversations on ${dateStr}`,
-        description: `AI conversations from ${dateStr}`
-      }))
+      // Convert to timeline events and sort by date ascending (oldest to newest)
+      databaseEvents.value = Array.from(uniqueDates)
+        .map((dateStr) => ({
+          id: dateStr,
+          date: new Date(dateStr),
+          title: `Conversations on ${dateStr}`,
+          description: `AI conversations from ${dateStr}`
+        }))
+        .sort((a, b) => a.date.getTime() - b.date.getTime())
+      
+      // Start at the most recent dates (end of timeline)
+      const maxIndex = Math.max(0, databaseEvents.value.length - visibleCount)
+      currentIndex.value = maxIndex
     }
   } catch (err: any) {
     console.error('Error fetching timeline dates:', err)
