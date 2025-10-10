@@ -38,12 +38,7 @@
             <div class="conversation-label">Question:</div>
             <div class="conversation-text">{{ conv.question }}</div>
           </div>
-          
-          <div class="conversation-answer">
-            <div class="conversation-label">Answer:</div>
-            <div class="conversation-text">{{ conv.response }}</div>
-          </div>
-          
+
           <div v-if="conv.screenshot_url" class="conversation-screenshot">
             <img 
               :src="conv.screenshot_url" 
@@ -51,6 +46,13 @@
               @click="openScreenshot(conv.screenshot_url)"
             />
           </div>
+          
+          <div class="conversation-answer">
+            <div class="conversation-label">Answer:</div>
+            <div class="conversation-text" v-html="convertTextToHtml(conv.response)"></div>
+          </div>
+          
+          
         </div>
       </div>
     </div>
@@ -88,12 +90,31 @@ const formattedDate = computed(() => {
 
 const formatTime = (dateString: string): string => {
   const date = new Date(dateString)
+  const tz = (date.toString().match(/\(([A-Za-z\s].*)\)/)?.[1] ?? '').match(/[A-Z]/g)?.join('') ?? '';
   return date.toLocaleTimeString('en-GB', { 
     hour: '2-digit', 
     minute: '2-digit',
     hour12: true
-  })
+  }) + ' ' + tz
 }
+
+function convertTextToHtml(text: string): string {
+  console.log("test");
+  let htmlContent = text.replace(/^\s*\#\#\#\#\s*(.*)$/gm, '<h4>$1</h4>');
+  htmlContent = htmlContent.replace(/^\s*\#\#\#\s*(.*)$/gm, '<h3>$1</h3>');
+
+  htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  htmlContent = htmlContent.replace(/\n/g, '<br/>');
+  htmlContent = htmlContent.replace(/<\/h3><br\/>/g, '<\/h3>');
+  htmlContent = htmlContent.replace(/<\/h4><br\/>/g, '<\/h3>');
+
+  return `
+    <section>
+    ${htmlContent}
+    </section>
+        `.trim();
+}
+//'Certainly! Here's a detailed overview of the Y2K Fund investment dashboard based on the screenshot provided:\n\n### Summary Section:\n- **Net Liquidation Value (NLV):** Represents the total equity in each client's account.\n- **Maintenance Margin:** The minimum amount of equity that must be maintained in the account.\n\n#### Client Accounts:\n- **Client1:** NLV: $5,366,399, Maintenance Margin: $4,188,162\n- **Client2:** NLV: $4,036,273, Maintenance Margin: $2,898,148\n- **Client3:** NLV: $1,380,089, Maintenance Margin: $1,159,309\n- **Client4:** NLV: $2,021,840, Maintenance Margin: $1,923,004\n- **Client5:** NLV: $313,144, Maintenance Margin: $443,126\n- **Client6:** NLV: $573,484, Maintenance Margin: $630,726\n- **Client7:** NLV: $12,067, Maintenance Margin: $12,004\n\n- **All Accounts (Total):** NLV: $14,981,901, Maintenance Margin: $11,159,479\n\n### Positions Section:\n- **Total Positions:** 59\n- Displays individual positions for each client account.\n- **Columns:**\n  - **Account:** Client identifier.\n  - **Financial Instrument:** Ticker symbol or name.\n  - **Asset Class:** Type of asset, such as stock (STK) or option (OPT).\n  - **Condition:** Specific details about the asset condition.\n  - **Underlying:** Reference asset for options.\n\n### Dashboard Functionality:\n- **Buttons:**\n  - **Analyze:** Likely used for in-depth analysis of data.\n  - **Refresh Data:** Updates the dashboard with the latest information.\n  - **Custom Reports:** Allows generation of tailored reports.\n\nThis dashboard provides a comprehensive view of financial metrics, positions, and client account details, aiding in effective monitoring and management.'
 
 const closeModal = () => {
   emit('close')
@@ -287,6 +308,11 @@ watch(() => props.isOpen, (isOpen) => {
 .conversation-text {
   color: #6b7280;
   word-break: break-word;
+}
+
+.conversation-text :deep(section h3),
+.conversation-text :deep(section h4) {
+  margin-bottom: 0.2em;
 }
 
 .conversation-answer {
