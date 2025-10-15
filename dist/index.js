@@ -1,5 +1,5 @@
-import { defineComponent as U, ref as g, computed as B, onMounted as H, createElementBlock as a, openBlock as r, createElementVNode as s, Fragment as F, renderList as M, normalizeStyle as N, normalizeClass as j, toDisplayString as C, watch as I, createCommentVNode as A, withDirectives as K, withKeys as q, withModifiers as O, vModelText as P, createTextVNode as z } from "vue";
-const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timeline-container" }, J = { class: "timeline-track" }, R = ["onClick"], Y = { class: "timeline-date" }, W = ["disabled"], E = 3, X = /* @__PURE__ */ U({
+import { defineComponent as z, ref as m, computed as B, onMounted as H, createElementBlock as r, openBlock as d, createElementVNode as s, Fragment as F, renderList as M, normalizeStyle as V, normalizeClass as j, toDisplayString as w, watch as A, createCommentVNode as I, withDirectives as K, withKeys as q, withModifiers as O, vModelText as P, createTextVNode as U } from "vue";
+const Q = { class: "analyze-timeline" }, G = ["disabled"], Z = { class: "timeline-container" }, J = { class: "timeline-track" }, R = ["onClick"], W = { class: "timeline-date" }, X = ["disabled"], E = 3, Y = /* @__PURE__ */ z({
   __name: "AnalyzeTimeline",
   props: {
     events: { default: () => [
@@ -13,13 +13,13 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
     config: { default: void 0 }
   },
   emits: ["event-selected", "navigate"],
-  setup(v, { emit: w }) {
-    const o = v, m = w, l = g(0), c = g([]), f = g(!1), p = g(null), _ = B(() => c.value.length > 0 ? c.value : o.events), y = B(() => _.value.slice(l.value, l.value + E)), $ = (n) => n.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }), D = (n) => y.value.length === 1 ? 50 : n / (y.value.length - 1) * 100, k = () => {
-      l.value > 0 && (l.value--, m("navigate", "prev"));
-    }, b = () => {
-      l.value < _.value.length - E && (l.value++, m("navigate", "next"));
+  setup(v, { emit: y }) {
+    const o = v, g = y, a = m(0), c = m([]), f = m(!1), p = m(null), k = B(() => c.value.length > 0 ? c.value : o.events), _ = B(() => k.value.slice(a.value, a.value + E)), $ = (n) => n.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }), D = (n) => _.value.length === 1 ? 50 : n / (_.value.length - 1) * 100, b = () => {
+      a.value > 0 && (a.value--, g("navigate", "prev"));
+    }, C = () => {
+      a.value < k.value.length - E && (a.value++, g("navigate", "next"));
     }, T = (n) => {
-      m("event-selected", n);
+      g("event-selected", n);
     }, L = async () => {
       var n, t, e;
       if (!(!((n = o.config) != null && n.enableDatabase) || !((t = o.config) != null && t.supabaseClient) || !((e = o.config) != null && e.userId))) {
@@ -29,18 +29,18 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
           if (u)
             throw u;
           if (i && i.length > 0) {
-            const d = /* @__PURE__ */ new Set();
+            const l = /* @__PURE__ */ new Set();
             i.forEach((h) => {
               const S = new Date(h.created_at).toISOString().split("T")[0];
-              d.add(S);
-            }), c.value = Array.from(d).map((h) => ({
+              l.add(S);
+            }), c.value = Array.from(l).map((h) => ({
               id: h,
               date: new Date(h),
               title: `Conversations on ${h}`,
               description: `AI conversations from ${h}`
             })).sort((h, S) => h.date.getTime() - S.date.getTime());
             const x = Math.max(0, c.value.length - E);
-            l.value = x;
+            a.value = x;
           }
         } catch (i) {
           console.error("Error fetching timeline dates:", i), p.value = i.message || "Failed to fetch timeline data";
@@ -51,11 +51,11 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
     };
     return H(() => {
       L();
-    }), (n, t) => (r(), a("div", G, [
+    }), (n, t) => (d(), r("div", Q, [
       s("button", {
         class: "timeline-nav timeline-nav-prev",
-        onClick: k,
-        disabled: l.value === 0
+        onClick: b,
+        disabled: a.value === 0
       }, [...t[0] || (t[0] = [
         s("svg", {
           width: "20",
@@ -72,25 +72,25 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
             "stroke-linejoin": "round"
           })
         ], -1)
-      ])], 8, Q),
+      ])], 8, G),
       s("div", Z, [
         s("div", J, [
           t[2] || (t[2] = s("div", { class: "timeline-line" }, null, -1)),
-          (r(!0), a(F, null, M(y.value, (e, i) => (r(), a("div", {
+          (d(!0), r(F, null, M(_.value, (e, i) => (d(), r("div", {
             key: e.id,
             class: j(["timeline-event", { active: v.selectedEventId === e.id }]),
-            style: N({ left: `${D(i)}%` }),
+            style: V({ left: `${D(i)}%` }),
             onClick: (u) => T(e)
           }, [
             t[1] || (t[1] = s("div", { class: "timeline-dot" }, null, -1)),
-            s("div", Y, C($(e.date)), 1)
+            s("div", W, w($(e.date)), 1)
           ], 14, R))), 128))
         ])
       ]),
       s("button", {
         class: "timeline-nav timeline-nav-next",
-        onClick: b,
-        disabled: l.value >= _.value.length - E
+        onClick: C,
+        disabled: a.value >= k.value.length - E
       }, [...t[3] || (t[3] = [
         s("svg", {
           width: "20",
@@ -107,30 +107,27 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
             "stroke-linejoin": "round"
           })
         ], -1)
-      ])], 8, W)
+      ])], 8, X)
     ]));
   }
-}), V = (v, w) => {
+}), N = (v, y) => {
   const o = v.__vccOpts || v;
-  for (const [m, l] of w)
-    o[m] = l;
+  for (const [g, a] of y)
+    o[g] = a;
   return o;
-}, Le = /* @__PURE__ */ V(X, [["__scopeId", "data-v-cbded2ac"]]), ee = { class: "conversations-card" }, te = { class: "card-header" }, se = { class: "card-title" }, ne = { class: "card-body" }, oe = {
+}, Se = /* @__PURE__ */ N(Y, [["__scopeId", "data-v-cbded2ac"]]), ee = { class: "conversations-card" }, te = { class: "card-header" }, se = { class: "card-title" }, ne = { class: "card-body" }, oe = {
   key: 0,
   class: "loading-state"
 }, ie = {
   key: 1,
   class: "empty-state"
-}, le = {
+}, ae = {
   key: 2,
   class: "conversations-list"
-}, ae = { class: "conversation-time" }, re = { class: "conversation-question" }, de = { class: "conversation-text" }, ce = {
+}, le = { class: "conversation-card-item" }, re = { class: "conversation-time" }, de = { class: "conversation-question" }, ce = { class: "conversation-text" }, ue = {
   key: 0,
   class: "conversation-screenshot"
-}, ue = ["src", "onClick"], ve = { class: "conversation-answer" }, pe = ["innerHTML"], he = { class: "follow-up-section" }, ge = { class: "follow-up-chat" }, me = {
-  key: 0,
-  class: "follow-up-loading"
-}, fe = { class: "follow-up-message" }, we = { class: "follow-up-question" }, _e = { class: "message-text" }, ye = { class: "follow-up-response" }, ke = ["innerHTML"], be = { class: "follow-up-input" }, Ce = ["onUpdate:modelValue", "disabled", "onKeydown"], $e = ["onClick", "disabled"], xe = { key: 0 }, Ee = { key: 1 }, De = /* @__PURE__ */ U({
+}, ve = ["src", "onClick"], pe = { class: "conversation-answer" }, he = ["innerHTML"], me = { class: "conversation-card-item" }, ge = { class: "conversation-time" }, fe = { class: "conversation-question" }, _e = { class: "conversation-text" }, we = { class: "conversation-answer" }, ye = ["innerHTML"], ke = { class: "follow-up-section" }, be = { class: "follow-up-chat" }, Ce = { class: "follow-up-input" }, $e = ["onUpdate:modelValue", "disabled", "onKeydown"], xe = ["onClick", "disabled"], Ee = { key: 0 }, De = { key: 1 }, Te = /* @__PURE__ */ z({
   __name: "aiAnalyseTimelineConversationCard",
   props: {
     isOpen: { type: Boolean },
@@ -141,12 +138,12 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
     userId: {}
   },
   emits: ["close"],
-  setup(v, { emit: w }) {
-    const o = v, m = w, l = g({}), c = g({}), f = g({}), p = g({}), _ = B(() => o.date ? new Date(o.date).toLocaleDateString("en-GB", {
+  setup(v, { emit: y }) {
+    const o = v, g = y, a = m({}), c = m({}), f = m({}), p = m({}), k = B(() => o.date ? new Date(o.date).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "long",
       year: "numeric"
-    }) : ""), y = (n) => {
+    }) : ""), _ = (n) => {
       var i, u;
       const t = new Date(n), e = ((u = (((i = t.toString().match(/\(([A-Za-z\s].*)\)/)) == null ? void 0 : i[1]) ?? "").match(/[A-Z]/g)) == null ? void 0 : u.join("")) ?? "";
       return t.toLocaleTimeString("en-GB", {
@@ -186,27 +183,27 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
           f.value[n] = !1;
         }
       }
-    }, k = async () => {
+    }, b = async () => {
       !o.conversations || o.conversations.length === 0 || await Promise.all(
         o.conversations.map((n) => D(n.id))
       );
     };
     H(() => {
-      k();
-    }), I(() => o.conversations, () => {
-      k();
-    }, { deep: !0 }), I(() => o.isOpen, (n) => {
+      b();
+    }), A(() => o.conversations, () => {
+      b();
+    }, { deep: !0 }), A(() => o.isOpen, (n) => {
       if (n) {
-        k();
+        b();
         const t = (e) => {
           e.key === "Escape" && T();
         };
         return document.addEventListener("keydown", t), () => document.removeEventListener("keydown", t);
       }
     });
-    const b = async (n) => {
+    const C = async (n) => {
       var e;
-      const t = (e = l.value[n.id]) == null ? void 0 : e.trim();
+      const t = (e = a.value[n.id]) == null ? void 0 : e.trim();
       if (!(!t || !o.supabaseClient || !o.userId)) {
         p.value[n.id] = !0;
         try {
@@ -229,14 +226,14 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
           });
           if (!i.ok)
             throw new Error("Failed to get AI response");
-          const u = await i.json(), { data: d, error: x } = await o.supabaseClient.schema("hf").from("ai_conversation_followups").insert({
+          const u = await i.json(), { data: l, error: x } = await o.supabaseClient.schema("hf").from("ai_conversation_followups").insert({
             conversation_id: n.id,
             user_id: o.userId,
             question: t,
             response: u.response
           }).select().single();
           if (x) throw x;
-          c.value[n.id] || (c.value[n.id] = []), c.value[n.id].push(d), l.value[n.id] = "";
+          c.value[n.id] || (c.value[n.id] = []), c.value[n.id].push(l), a.value[n.id] = "";
         } catch (i) {
           console.error("Error sending follow-up:", i), alert("Failed to send follow-up question. Please try again.");
         } finally {
@@ -244,13 +241,13 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
         }
       }
     }, T = () => {
-      m("close");
+      g("close");
     }, L = (n) => {
       window.open(n, "_blank");
     };
-    return (n, t) => (r(), a("div", ee, [
+    return (n, t) => (d(), r("div", ee, [
       s("div", te, [
-        s("h2", se, "Conversations - " + C(_.value), 1),
+        s("h2", se, "Conversations - " + w(k.value), 1),
         s("button", {
           class: "card-close",
           onClick: t[0] || (t[0] = (e) => n.$emit("close")),
@@ -280,10 +277,10 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
         ])])
       ]),
       s("div", ne, [
-        v.loading ? (r(), a("div", oe, [...t[2] || (t[2] = [
+        v.loading ? (d(), r("div", oe, [...t[2] || (t[2] = [
           s("div", { class: "spinner" }, null, -1),
           s("p", null, "Loading conversations...", -1)
-        ])])) : !v.conversations || v.conversations.length === 0 ? (r(), a("div", ie, [...t[3] || (t[3] = [
+        ])])) : !v.conversations || v.conversations.length === 0 ? (d(), r("div", ie, [...t[3] || (t[3] = [
           s("svg", {
             width: "64",
             height: "64",
@@ -295,90 +292,76 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
             s("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
           ], -1),
           s("p", null, "No conversations found for this date", -1)
-        ])])) : (r(), a("div", le, [
-          (r(!0), a(F, null, M(v.conversations, (e) => {
+        ])])) : (d(), r("div", ae, [
+          (d(!0), r(F, null, M(v.conversations, (e) => {
             var i, u;
-            return r(), a("div", {
-              key: e.id,
-              class: "conversation-card-item"
+            return d(), r("div", {
+              key: e.id
             }, [
-              s("div", ae, C(y(e.created_at)), 1),
-              s("div", re, [
-                t[4] || (t[4] = s("div", { class: "conversation-label" }, "Question:", -1)),
-                s("div", de, C(e.question), 1)
+              s("div", le, [
+                s("div", re, w(_(e.created_at)), 1),
+                s("div", de, [
+                  t[4] || (t[4] = s("div", { class: "conversation-label" }, "Question:", -1)),
+                  s("div", ce, w(e.question), 1)
+                ]),
+                e.screenshot_url ? (d(), r("div", ue, [
+                  s("img", {
+                    src: e.screenshot_url,
+                    alt: "Screenshot",
+                    onClick: (l) => L(e.screenshot_url)
+                  }, null, 8, ve)
+                ])) : I("", !0),
+                s("div", pe, [
+                  t[5] || (t[5] = s("div", { class: "conversation-label" }, "Answer:", -1)),
+                  s("div", {
+                    class: "conversation-text",
+                    innerHTML: $(e.response)
+                  }, null, 8, he)
+                ])
               ]),
-              e.screenshot_url ? (r(), a("div", ce, [
-                s("img", {
-                  src: e.screenshot_url,
-                  alt: "Screenshot",
-                  onClick: (d) => L(e.screenshot_url)
-                }, null, 8, ue)
-              ])) : A("", !0),
-              s("div", ve, [
-                t[5] || (t[5] = s("div", { class: "conversation-label" }, "Answer:", -1)),
-                s("div", {
-                  class: "conversation-text",
-                  innerHTML: $(e.response)
-                }, null, 8, pe)
-              ]),
-              s("div", he, [
-                t[11] || (t[11] = s("div", { class: "follow-up-header" }, [
-                  s("svg", {
-                    width: "16",
-                    height: "16",
-                    viewBox: "0 0 24 24",
-                    fill: "none",
-                    stroke: "currentColor",
-                    "stroke-width": "2"
-                  }, [
-                    s("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
+              ((i = c.value[e.id]) == null ? void 0 : i.length) > 0 ? (d(!0), r(F, { key: 0 }, M(c.value[e.id], (l) => (d(), r("div", {
+                key: l.id,
+                style: { "margin-top": "30px !important" }
+              }, [
+                s("div", me, [
+                  s("div", ge, w(_(l.created_at)), 1),
+                  s("div", fe, [
+                    t[6] || (t[6] = s("div", { class: "conversation-label" }, "Question:", -1)),
+                    s("div", _e, w(l.question), 1)
                   ]),
-                  s("span", null, "Follow-up Chat")
-                ], -1)),
-                s("div", ge, [
-                  f.value[e.id] ? (r(), a("div", me, [...t[6] || (t[6] = [
-                    s("div", { class: "spinner-small" }, null, -1),
-                    s("span", null, "Loading previous messages...", -1)
-                  ])])) : ((i = c.value[e.id]) == null ? void 0 : i.length) > 0 ? (r(!0), a(F, { key: 1 }, M(c.value[e.id], (d) => (r(), a("div", {
-                    class: "follow-up-messages",
-                    key: d.id
-                  }, [
-                    s("div", fe, [
-                      s("div", we, [
-                        t[7] || (t[7] = s("div", { class: "message-label" }, "You:", -1)),
-                        s("div", _e, C(d.question), 1)
-                      ]),
-                      s("div", ye, [
-                        t[8] || (t[8] = s("div", { class: "message-label" }, "AI:", -1)),
-                        s("div", {
-                          class: "message-text",
-                          innerHTML: $(d.response)
-                        }, null, 8, ke)
-                      ])
-                    ])
-                  ]))), 128)) : A("", !0),
-                  s("div", be, [
+                  s("div", we, [
+                    t[7] || (t[7] = s("div", { class: "conversation-label" }, "Answer:", -1)),
+                    s("div", {
+                      class: "conversation-text",
+                      innerHTML: $(l.response)
+                    }, null, 8, ye)
+                  ])
+                ])
+              ]))), 128)) : I("", !0),
+              s("div", ke, [
+                s("div", be, [
+                  s("div", Ce, [
                     K(s("textarea", {
-                      "onUpdate:modelValue": (d) => l.value[e.id] = d,
+                      "onUpdate:modelValue": (l) => a.value[e.id] = l,
                       placeholder: "Type your follow-up question...",
                       rows: "3",
                       disabled: p.value[e.id],
                       onKeydown: [
-                        q(O((d) => b(e), ["ctrl"]), ["enter"]),
-                        q(O((d) => b(e), ["meta"]), ["enter"])
+                        q(O((l) => C(e), ["ctrl"]), ["enter"]),
+                        q(O((l) => C(e), ["meta"]), ["enter"])
                       ]
-                    }, null, 40, Ce), [
-                      [P, l.value[e.id]]
+                    }, null, 40, $e), [
+                      [P, a.value[e.id]]
                     ]),
                     s("button", {
-                      onClick: (d) => b(e),
-                      disabled: !((u = l.value[e.id]) != null && u.trim()) || p.value[e.id],
+                      onClick: (l) => C(e),
+                      disabled: !((u = a.value[e.id]) != null && u.trim()) || p.value[e.id],
                       class: "send-button"
                     }, [
-                      p.value[e.id] ? (r(), a("span", Ee, [...t[10] || (t[10] = [
+                      p.value[e.id] ? (d(), r("span", De, [...t[9] || (t[9] = [
                         s("div", { class: "spinner-small" }, null, -1),
-                        z(" Sending... ", -1)
-                      ])])) : (r(), a("span", xe, [...t[9] || (t[9] = [
+                        U(" Sending... ", -1)
+                      ])])) : (d(), r("span", Ee, [...t[8] || (t[8] = [
                         s("svg", {
                           width: "16",
                           height: "16",
@@ -395,9 +378,9 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
                           }),
                           s("polygon", { points: "22 2 15 22 11 13 2 9 22 2" })
                         ], -1),
-                        z(" Send ", -1)
+                        U(" Send ", -1)
                       ])]))
-                    ], 8, $e)
+                    ], 8, xe)
                   ])
                 ])
               ])
@@ -407,9 +390,9 @@ const G = { class: "analyze-timeline" }, Q = ["disabled"], Z = { class: "timelin
       ])
     ]));
   }
-}), Se = /* @__PURE__ */ V(De, [["__scopeId", "data-v-3a3b8b13"]]);
+}), Be = /* @__PURE__ */ N(Te, [["__scopeId", "data-v-8a1df1d8"]]);
 export {
-  Le as AnalyzeTimeline,
-  Se as aiAnalyseTimelineConversationCard,
-  Le as default
+  Se as AnalyzeTimeline,
+  Be as aiAnalyseTimelineConversationCard,
+  Se as default
 };

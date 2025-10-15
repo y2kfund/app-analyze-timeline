@@ -25,94 +25,80 @@
       </div>
 
       <div v-else class="conversations-list">
-        <div 
-          v-for="conv in conversations" 
-          :key="conv.id" 
-          class="conversation-card-item"
-        >
-          <div class="conversation-time">
-            {{ formatTime(conv.created_at) }}
-          </div>
-          
-          <div class="conversation-question">
-            <div class="conversation-label">Question:</div>
-            <div class="conversation-text">{{ conv.question }}</div>
-          </div>
-
-          <div v-if="conv.screenshot_url" class="conversation-screenshot">
-            <img 
-              :src="conv.screenshot_url" 
-              alt="Screenshot"
-              @click="openScreenshot(conv.screenshot_url)"
-            />
-          </div>
-          
-          <div class="conversation-answer">
-            <div class="conversation-label">Answer:</div>
-            <div class="conversation-text" v-html="convertTextToHtml(conv.response)"></div>
-          </div>
-
-          <!-- Follow-up Chat Section -->
-          <div class="follow-up-section">
-            <div class="follow-up-header">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span>Follow-up Chat</span>
+        <div v-for="conv in conversations" :key="conv.id" >
+          <div class="conversation-card-item">          
+            <div class="conversation-time">
+              {{ formatTime(conv.created_at) }}
+            </div>
+            
+            <div class="conversation-question">
+              <div class="conversation-label">Question:</div>
+              <div class="conversation-text">{{ conv.question }}</div>
             </div>
 
-            <div class="follow-up-chat">
-              <!-- Loading follow-ups -->
-              <div v-if="loadingFollowUps[conv.id]" class="follow-up-loading">
-                <div class="spinner-small"></div>
-                <span>Loading previous messages...</span>
+            <div v-if="conv.screenshot_url" class="conversation-screenshot">
+              <img 
+                :src="conv.screenshot_url" 
+                alt="Screenshot"
+                @click="openScreenshot(conv.screenshot_url)"
+              />
+            </div>
+            
+            <div class="conversation-answer">
+              <div class="conversation-label">Answer:</div>
+              <div class="conversation-text" v-html="convertTextToHtml(conv.response)"></div>
+            </div>
+          </div>
+          <div v-if="followUpMessages[conv.id]?.length > 0" v-for="msg in followUpMessages[conv.id]" :key="msg.id" style="margin-top: 30px !important;">
+            <div class="conversation-card-item">   
+              <div class="conversation-time">
+                {{ formatTime(msg.created_at) }}
+              </div>
+              
+              <div class="conversation-question">
+                <div class="conversation-label">Question:</div>
+                <div class="conversation-text">{{ msg.question }}</div>
               </div>
 
-              <!-- Follow-up messages -->
-              <div v-else-if="followUpMessages[conv.id]?.length > 0" class="follow-up-messages" v-for="msg in followUpMessages[conv.id]" :key="msg.id">
-                <div class="follow-up-message">
-                  <div class="follow-up-question">
-                    <div class="message-label">You:</div>
-                    <div class="message-text">{{ msg.question }}</div>
-                  </div>
-                  <div class="follow-up-response">
-                    <div class="message-label">AI:</div>
-                    <div class="message-text" v-html="convertTextToHtml(msg.response)"></div>
-                  </div>
+              <div class="conversation-answer">
+                <div class="conversation-label">Answer:</div>
+                <div class="conversation-text" v-html="convertTextToHtml(msg.response)"></div>
+              </div>
+            </div>
+          </div>
+            <!-- Follow-up Chat Section -->
+            <div class="follow-up-section">
+              <div class="follow-up-chat">
+                <!-- Input area -->
+                <div class="follow-up-input">
+                  <textarea 
+                    v-model="followUpQuestions[conv.id]"
+                    placeholder="Type your follow-up question..."
+                    rows="3"
+                    :disabled="sendingFollowUp[conv.id]"
+                    @keydown.ctrl.enter="sendFollowUp(conv)"
+                    @keydown.meta.enter="sendFollowUp(conv)"
+                  ></textarea>
+                  <button 
+                    @click="sendFollowUp(conv)"
+                    :disabled="!followUpQuestions[conv.id]?.trim() || sendingFollowUp[conv.id]"
+                    class="send-button"
+                  >
+                    <span v-if="!sendingFollowUp[conv.id]">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                      </svg>
+                      Send
+                    </span>
+                    <span v-else>
+                      <div class="spinner-small"></div>
+                      Sending...
+                    </span>
+                  </button>
                 </div>
               </div>
-
-              <!-- Input area -->
-              <div class="follow-up-input">
-                <textarea 
-                  v-model="followUpQuestions[conv.id]"
-                  placeholder="Type your follow-up question..."
-                  rows="3"
-                  :disabled="sendingFollowUp[conv.id]"
-                  @keydown.ctrl.enter="sendFollowUp(conv)"
-                  @keydown.meta.enter="sendFollowUp(conv)"
-                ></textarea>
-                <button 
-                  @click="sendFollowUp(conv)"
-                  :disabled="!followUpQuestions[conv.id]?.trim() || sendingFollowUp[conv.id]"
-                  class="send-button"
-                >
-                  <span v-if="!sendingFollowUp[conv.id]">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="22" y1="2" x2="11" y2="13"/>
-                      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
-                    Send
-                  </span>
-                  <span v-else>
-                    <div class="spinner-small"></div>
-                    Sending...
-                  </span>
-                </button>
-              </div>
             </div>
-          </div>
-          
           
         </div>
       </div>
