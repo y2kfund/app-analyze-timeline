@@ -19,7 +19,7 @@
           class="timeline-event"
           :class="{ 'active': selectedEventId === event.id }"
           :style="{ left: `${getEventPosition(index)}%` }"
-          @click="selectEvent(event)"
+          @click="selectEvent(event, $event)"
         >
           <div class="timeline-dot"></div>
           <div class="timeline-date">
@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { defineEmits } from 'vue';
 import { ref, computed, onMounted } from 'vue'
 import type { TimelineEvent, AnalyzeTimelineProps } from './types/index'
 
@@ -56,9 +57,12 @@ const props = withDefaults(defineProps<AnalyzeTimelineProps>(), {
   selectedEventId: undefined,
   config: undefined
 })
-
+export interface EventSelectedPayload {
+  data: TimelineEvent;
+  target: HTMLElement;
+}
 const emit = defineEmits<{
-  'event-selected': [event: TimelineEvent]
+  'event-selected': [event: EventSelectedPayload]
   'navigate': [direction: 'prev' | 'next']
 }>()
 
@@ -101,11 +105,13 @@ const navigateNext = () => {
   }
 }
 
-const selectEvent = (event: TimelineEvent) => {
-  emit('event-selected', event)
+const selectEvent = (event: TimelineEvent, domEvent: MouseEvent) => {
+  emit('event-selected', {
+    data: event,
+    target: domEvent.currentTarget as HTMLElement
+  })
 }
 
-// Fetch timeline dates from database
 const fetchTimelineDates = async () => {
   if (!props.config?.enableDatabase || !props.config?.supabaseClient || !props.config?.userId) {
     return

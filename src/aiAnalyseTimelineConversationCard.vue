@@ -51,8 +51,9 @@
             <div class="conversation-label">Answer:</div>
             <div class="conversation-text" v-html="convertTextToHtml(conv.response)"></div>
           </div>
+          <!--start-->
           
-          
+          <!-- end -->
         </div>
       </div>
     </div>
