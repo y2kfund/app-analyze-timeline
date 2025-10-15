@@ -4,6 +4,8 @@ interface Props {
     conversations: Conversation[];
     date: string;
     loading?: boolean;
+    supabaseClient?: any;
+    userId?: string;
 }
 declare const _default: import('vue').DefineComponent<Props, {}, {}, {}, {}, import('vue').ComponentOptionsMixin, import('vue').ComponentOptionsMixin, {
     close: () => any;
