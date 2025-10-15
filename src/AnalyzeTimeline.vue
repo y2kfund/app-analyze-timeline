@@ -19,7 +19,7 @@
           class="timeline-event"
           :class="{ 'active': selectedEventId === event.id }"
           :style="{ left: `${getEventPosition(index)}%` }"
-          @click="selectEvent(event)"
+          @click="selectEvent(event, $event)"
         >
           <div class="timeline-dot"></div>
           <div class="timeline-date">
@@ -58,7 +58,7 @@ const props = withDefaults(defineProps<AnalyzeTimelineProps>(), {
 })
 
 const emit = defineEmits<{
-  'event-selected': [event: TimelineEvent]
+  'event-selected': [event: TimelineEvent, position: { x: number; y: number }]
   'navigate': [direction: 'prev' | 'next']
 }>()
 
@@ -101,8 +101,13 @@ const navigateNext = () => {
   }
 }
 
-const selectEvent = (event: TimelineEvent) => {
-  emit('event-selected', event)
+const selectEvent = (event: TimelineEvent, mouseEvent: MouseEvent) => {
+  // Get the position of the click for dropdown placement
+  const position = {
+    x: mouseEvent.clientX,
+    y: mouseEvent.clientY
+  }
+  emit('event-selected', event, position)
 }
 
 // Fetch timeline dates from database
