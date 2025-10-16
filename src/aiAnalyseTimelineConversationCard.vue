@@ -52,7 +52,32 @@
             <div class="conversation-text" v-html="convertTextToHtml(conv.response)"></div>
           </div>
           <!--start-->
-          
+          <div class="input-section">
+            <div class="input-container">
+              <textarea
+                v-model="question"
+                placeholder="Ask a question about what you see on the page..."
+                class="question-input"
+                rows="2"
+                @keydown.ctrl.enter="submitQuestion"
+                @keydown.meta.enter="submitQuestion"
+              ></textarea>
+              <button 
+                @click="submitQuestion" 
+                :disabled="!question.trim() || isProcessing"
+                class="submit-button"
+              >
+                <svg v-if="isProcessing" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="loading-icon">
+                  <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                </svg>
+                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22,2 15,22 11,13 2,9 22,2"/>
+                </svg>
+              </button>
+            </div>
+            <p class="input-hint">Press Ctrl+Enter to send • Screenshots are automatically included</p>
+          </div>
           <!-- end -->
         </div>
       </div>
@@ -61,8 +86,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import type { Conversation } from './types/index'
+
+const isProcessing = ref(false);
+const question = ref('')
+const latestScreenshotUrl = computed((): string | undefined => {
+  if (props.conversations && props.conversations.length > 0) {
+    const latestConv = props.conversations[props.conversations.length - 1];
+    return latestConv.screenshot_url ?? undefined; 
+  }
+  return undefined;
+});
+function submitQuestion(){
+  if (!question.value.trim() || isProcessing.value) return;
+  isProcessing.value = true;
+  const screenShot = latestScreenshotUrl.value; 
+  console.log(question, screenShot);
+  emit('submitNewQuestion', { 
+    question: question.value.trim(), 
+    screenshotUrl: screenShot 
+  });
+  // question.value = '';
+  // isProcessing.value = false;
+  
+}
 
 interface Props {
   isOpen: boolean
@@ -77,6 +125,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'close': []
+  'submitNewQuestion': [{ question: string, screenshotUrl: string | null | undefined }]
 }>()
 
 const formattedDate = computed(() => {
@@ -337,6 +386,70 @@ watch(() => props.isOpen, (isOpen) => {
   border-radius: 0.25rem;
   cursor: pointer;
   display: block;
+}
+
+.input-section {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.input-container {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.question-input {
+  flex: 1;
+  resize: none;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.question-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.submit-button {
+  width: auto;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.submit-button:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+}
+
+.input-hint {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
 </style>

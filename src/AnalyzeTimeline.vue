@@ -123,7 +123,7 @@ const fetchTimelineDates = async () => {
   try {
     const { data, error: fetchError } = await props.config.supabaseClient
       .schema('hf')
-      .from('ai_conversations')
+      .from('ai_conversations_new')
       .select('created_at')
       .eq('user_id', props.config.userId)
       .order('created_at', { ascending: true })
