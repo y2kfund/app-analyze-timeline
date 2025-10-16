@@ -29,6 +29,17 @@
           <div class="conversation-card-item">          
             <div class="conversation-time">
               {{ formatTime(conv.created_at) }}
+              <!-- Gear icon to view API payload -->
+              <button 
+                v-if="conv.api_payload" 
+                @click="openApiPayloadModal(conv)"
+                class="api-payload-icon"
+                title="View API Details"
+              >
+                <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.21-.37-.3-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.03-.22-.22-.39-.44-.39h-3.84c-.22 0-.41.16-.44.39l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.09-.47 0-.59.22l-1.92 3.32c-.12.21-.07.47.12.61l2.03 1.58c.04.31.06.63.06.94s-.02.63-.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.21.37.3.59.22l2.39.96c.5.38 1.03.7 1.62.94l.36 2.54c.03.22.22.39.44.39h3.84c.22 0 .41-.16.44-.39l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.09.47 0 .59-.22l1.92-3.32c.12-.21.07-.47-.12-.61l-2.03-1.58ZM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5Z"/>
+                </svg>
+              </button>
             </div>
             
             <div class="conversation-question">
@@ -53,6 +64,17 @@
             <div class="conversation-card-item">   
               <div class="conversation-time">
                 {{ formatTime(msg.created_at) }}
+                <!-- Gear icon for follow-up API payload -->
+                <button 
+                  v-if="msg.api_payload" 
+                  @click="openApiPayloadModal(msg)"
+                  class="api-payload-icon"
+                  title="View API Details"
+                >
+                  <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.21-.37-.3-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.03-.22-.22-.39-.44-.39h-3.84c-.22 0-.41.16-.44.39l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.09-.47 0-.59.22l-1.92 3.32c-.12.21-.07.47.12.61l2.03 1.58c.04.31.06.63.06.94s-.02.63-.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.21.37.3.59.22l2.39.96c.5.38 1.03.7 1.62.94l.36 2.54c.03.22.22.39.44.39h3.84c.22 0 .41-.16.44-.39l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.09.47 0 .59-.22l1.92-3.32c.12-.21.07-.47-.12-.61l-2.03-1.58ZM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5Z"/>
+                  </svg>
+                </button>
               </div>
               
               <div class="conversation-question">
@@ -104,6 +126,69 @@
       </div>
     </div>
   </div>
+
+  <!-- API Payload Modal -->
+  <div v-if="showApiPayloadModal" class="api-modal-overlay" @click="closeApiPayloadModal">
+    <div class="api-modal-container" @click.stop>
+      <div class="api-modal-header">
+        <h3 class="api-modal-title">🔍 API Request & Response Details</h3>
+        <button class="api-modal-close" @click="closeApiPayloadModal" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="api-modal-body">
+        <div v-if="selectedApiPayload" class="api-payload-content">
+          <!-- Request Section -->
+          <div class="api-section">
+            <h4 class="api-section-title">📤 Request Sent to OpenRouter</h4>
+            <div class="api-code-block">
+              <pre><code>{{ JSON.stringify(selectedApiPayload.request_sent_to_openrouter, null, 2) }}</code></pre>
+            </div>
+          </div>
+
+          <!-- Response Section -->
+          <div class="api-section">
+            <h4 class="api-section-title">📥 Response Received from OpenRouter</h4>
+            <div class="api-code-block">
+              <pre><code>{{ JSON.stringify(selectedApiPayload.response_received_from_openrouter, null, 2) }}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="api-no-data">
+          <p>No API payload data available for this conversation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot Modal -->
+  <div v-if="showScreenshotModal" class="screenshot-modal-overlay" @click="closeScreenshotModal">
+    <div class="screenshot-modal-container" @click.stop>
+      <div class="screenshot-modal-header">
+        <h3 class="screenshot-modal-title">📸 Screenshot</h3>
+        <button class="screenshot-modal-close" @click="closeScreenshotModal" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="screenshot-modal-body">
+        <img 
+          v-if="selectedScreenshot" 
+          :src="selectedScreenshot" 
+          alt="Screenshot"
+          class="screenshot-image"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -132,6 +217,14 @@ const followUpQuestions = ref<Record<string, string>>({})
 const followUpMessages = ref<Record<string, FollowUpMessage[]>>({})
 const loadingFollowUps = ref<Record<string, boolean>>({})
 const sendingFollowUp = ref<Record<string, boolean>>({})
+
+// State for API payload modal
+const showApiPayloadModal = ref(false)
+const selectedApiPayload = ref<any>(null)
+
+// State for screenshot modal
+const showScreenshotModal = ref(false)
+const selectedScreenshot = ref<string | null>(null)
 
 const formattedDate = computed(() => {
   if (!props.date) return ''
@@ -311,7 +404,8 @@ const sendFollowUp = async (conv: Conversation) => {
         conversation_id: conv.id,
         user_id: props.userId,
         question,
-        response: data.response
+        response: data.response,
+        api_payload: data.api_payload || null
       })
       .select()
       .single()
@@ -340,7 +434,29 @@ const closeModal = () => {
 }
 
 const openScreenshot = (url: string) => {
-  window.open(url, '_blank')
+  selectedScreenshot.value = url
+  showScreenshotModal.value = true
+}
+
+const closeScreenshotModal = () => {
+  showScreenshotModal.value = false
+  selectedScreenshot.value = null
+}
+
+// Open API payload modal
+const openApiPayloadModal = (item: Conversation | FollowUpMessage) => {
+  if (item.api_payload) {
+    selectedApiPayload.value = item.api_payload
+    showApiPayloadModal.value = true
+  } else {
+    alert('No API payload data available for this conversation.')
+  }
+}
+
+// Close API payload modal
+const closeApiPayloadModal = () => {
+  showApiPayloadModal.value = false
+  selectedApiPayload.value = null
 }
 </script>
 
@@ -846,6 +962,313 @@ const openScreenshot = (url: string) => {
 .message-text :deep(section ul + p),
 .message-text :deep(section pre + p) {
   margin-top: 1rem;
+}
+
+/*
+|--------------------------------------------------------------------------
+| API PAYLOAD MODAL & GEAR ICON
+|--------------------------------------------------------------------------
+*/
+.api-payload-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.15s;
+}
+
+.api-payload-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Modal Overlay */
+.api-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.api-modal-container {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 1200px;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Header */
+.api-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(to right, #f9fafb, #ffffff);
+}
+
+.api-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.api-modal-close {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.api-modal-close:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+  transform: scale(1.05);
+}
+
+/* Modal Body */
+.api-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.api-payload-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.api-section {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.api-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.api-code-block {
+  background: #1f2937;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.api-code-block pre {
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.api-code-block code {
+  color: #e5e7eb;
+  white-space: pre;
+}
+
+.api-no-data {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.api-no-data p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .api-modal-container {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+
+  .api-modal-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .api-modal-title {
+    font-size: 1.125rem;
+  }
+
+  .api-modal-body {
+    padding: 1rem;
+  }
+
+  .api-code-block {
+    font-size: 0.75rem;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| SCREENSHOT MODAL
+|--------------------------------------------------------------------------
+*/
+.screenshot-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+  padding: 2rem;
+}
+
+.screenshot-modal-container {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  max-width: 95vw;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+.screenshot-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(to right, #f9fafb, #ffffff);
+  flex-shrink: 0;
+}
+
+.screenshot-modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.screenshot-modal-close {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.screenshot-modal-close:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+  transform: scale(1.05);
+}
+
+.screenshot-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+}
+
+.screenshot-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  display: block;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Responsive adjustments for screenshot modal */
+@media (max-width: 768px) {
+  .screenshot-modal-overlay {
+    padding: 1rem;
+  }
+
+  .screenshot-modal-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .screenshot-modal-title {
+    font-size: 1rem;
+  }
+
+  .screenshot-modal-body {
+    padding: 1rem;
+  }
 }
 
 </style>

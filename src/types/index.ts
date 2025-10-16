@@ -12,6 +12,21 @@ export interface Conversation {
   response: string
   screenshot_url: string | null
   created_at: string
+  api_payload?: {
+    request_sent_to_openrouter: {
+      model: string
+      messages: any[]
+      parameters: {
+        max_tokens: number
+        temperature: number
+        top_p: number
+        top_k: number
+      }
+    }
+    response_received_from_openrouter: {
+      raw_response: any
+    }
+  }
 }
 
 export interface FollowUpMessage {
@@ -21,6 +36,21 @@ export interface FollowUpMessage {
   question: string
   response: string
   created_at: string
+  api_payload?: {
+    request_sent_to_openrouter: {
+      model: string
+      messages: any[]
+      parameters: {
+        max_tokens: number
+        temperature: number
+        top_p: number
+        top_k: number
+      }
+    }
+    response_received_from_openrouter: {
+      raw_response: any
+    }
+  }
 }
 
 export interface AnalyzeTimelineConfig {

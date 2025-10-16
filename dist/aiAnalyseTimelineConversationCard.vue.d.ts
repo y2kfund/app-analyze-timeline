@@ -13,5 +13,5 @@ declare const _default: import('vue').DefineComponent<Props, {}, {}, {}, {}, imp
     onClose?: (() => any) | undefined;
 }>, {
     loading: boolean;
-}, {}, {}, {}, string, import('vue').ComponentProvideOptions, false, {}, HTMLDivElement>;
+}, {}, {}, {}, string, import('vue').ComponentProvideOptions, false, {}, any>;
 export default _default;
