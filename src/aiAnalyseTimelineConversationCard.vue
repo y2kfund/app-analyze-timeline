@@ -38,14 +38,6 @@
             <div class="conversation-label">Question:</div>
             <div class="conversation-text">{{ conv.question }}</div>
           </div>
-
-          <div v-if="conv.screenshot_url" class="conversation-screenshot">
-            <img 
-              :src="conv.screenshot_url" 
-              alt="Screenshot"
-              @click="openScreenshot(conv.screenshot_url)"
-            />
-          </div>
           
           <div class="conversation-answer">
             <div class="conversation-label">Answer:</div>
@@ -54,6 +46,14 @@
         </div>
       </div>
       <!--start-->
+      <div>
+        <div v-if="firstScreenshotUrl" class="conversation-screenshot">
+          <span 
+            @click="openScreenshot(firstScreenshotUrl)" 
+            title="Click to view full size"
+          >Screenshot</span>
+        </div>
+      </div>
       <div class="input-section">
         <div class="input-container">
           <textarea
@@ -91,7 +91,7 @@ import type { Conversation } from './types/index'
 
 const isProcessing = ref(false);
 const question = ref('')
-const latestScreenshotUrl = computed((): string | undefined => {
+const firstScreenshotUrl = computed((): string | undefined => {
   if (props.conversations && props.conversations.length > 0) {
     const firstConv = props.conversations[0];
     return firstConv.screenshot_url ?? undefined;
@@ -101,7 +101,7 @@ const latestScreenshotUrl = computed((): string | undefined => {
 function submitQuestion(){
   if (!question.value.trim() || isProcessing.value) return;
   isProcessing.value = true;
-  const screenShot = latestScreenshotUrl.value; 
+  const screenShot = firstScreenshotUrl.value; 
   console.log(question, screenShot);
   emit('submitNewQuestion', { 
     question: question.value.trim(), 
@@ -376,16 +376,17 @@ watch(() => props.isOpen, (isOpen) => {
 
 .conversation-screenshot {
   margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
 }
 
-.conversation-screenshot img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  display: block;
+.conversation-screenshot span {
+  display: inline-block;
+    font-size: 14px;
+    color: #fff;
+    background: #854545;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
 }
 
 .input-section {
