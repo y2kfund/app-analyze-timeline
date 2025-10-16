@@ -145,16 +145,105 @@
           <!-- Request Section -->
           <div class="api-section">
             <h4 class="api-section-title">📤 Request Sent to OpenRouter</h4>
-            <div class="api-code-block">
-              <pre><code>{{ JSON.stringify(selectedApiPayload.request_sent_to_openrouter, null, 2) }}</code></pre>
+            
+            <!-- Model -->
+            <div class="api-subsection">
+              <div class="subsection-label">Model</div>
+              <div class="subsection-value">{{ selectedApiPayload.request_sent_to_openrouter?.model || 'N/A' }}</div>
+            </div>
+
+            <!-- System Prompt -->
+            <div v-if="getSystemPrompt()" class="api-subsection">
+              <div class="subsection-label">System Prompt</div>
+              <div class="api-code-block">
+                <pre><code>{{ getSystemPrompt() }}</code></pre>
+              </div>
+            </div>
+
+            <!-- User Prompts -->
+            <div v-if="getUserPrompts().length > 0" class="api-subsection">
+              <div class="subsection-label">User Message</div>
+              <div v-for="(prompt, index) in getUserPrompts()" :key="index" class="user-prompt-item">
+                <div v-if="prompt.type === 'text'" class="prompt-text">
+                  <span class="prompt-type-badge">📝 Text</span>
+                  <div class="api-code-block">
+                    <pre><code>{{ prompt.content }}</code></pre>
+                  </div>
+                </div>
+                <div v-else-if="prompt.type === 'image_url'" class="prompt-image">
+                  <span class="prompt-type-badge">🖼️ Image</span>
+                  <div class="image-url-display">
+                    <div class="image-detail">
+                      <strong>URL:</strong> 
+                      <a :href="prompt.url" target="_blank" class="image-link">{{ truncateUrl(prompt.url || '') }}</a>
+                    </div>
+                    <div class="image-detail" v-if="prompt.detail">
+                      <strong>Detail Level:</strong> {{ prompt.detail }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Parameters -->
+            <div v-if="selectedApiPayload.request_sent_to_openrouter?.parameters" class="api-subsection">
+              <div class="subsection-label">Parameters</div>
+              <div class="parameters-grid">
+                <div v-for="(value, key) in selectedApiPayload.request_sent_to_openrouter.parameters" :key="key" class="param-item">
+                  <span class="param-key">{{ key }}:</span>
+                  <span class="param-value">{{ value }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Response Section -->
           <div class="api-section">
             <h4 class="api-section-title">📥 Response Received from OpenRouter</h4>
-            <div class="api-code-block">
-              <pre><code>{{ JSON.stringify(selectedApiPayload.response_received_from_openrouter, null, 2) }}</code></pre>
+            
+            <div v-if="selectedApiPayload.response_received_from_openrouter?.raw_response" class="api-subsection">
+              <!-- Response Metadata -->
+              <div class="response-metadata">
+                <div class="metadata-item">
+                  <span class="metadata-label">ID:</span>
+                  <span class="metadata-value">{{ selectedApiPayload.response_received_from_openrouter.raw_response.id }}</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Model:</span>
+                  <span class="metadata-value">{{ selectedApiPayload.response_received_from_openrouter.raw_response.model }}</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Provider:</span>
+                  <span class="metadata-value">{{ selectedApiPayload.response_received_from_openrouter.raw_response.provider }}</span>
+                </div>
+              </div>
+
+              <!-- Token Usage -->
+              <div v-if="selectedApiPayload.response_received_from_openrouter.raw_response.usage" class="api-subsection">
+                <div class="subsection-label">Token Usage</div>
+                <div class="parameters-grid">
+                  <div class="param-item">
+                    <span class="param-key">Prompt Tokens:</span>
+                    <span class="param-value">{{ selectedApiPayload.response_received_from_openrouter.raw_response.usage.prompt_tokens }}</span>
+                  </div>
+                  <div class="param-item">
+                    <span class="param-key">Completion Tokens:</span>
+                    <span class="param-value">{{ selectedApiPayload.response_received_from_openrouter.raw_response.usage.completion_tokens }}</span>
+                  </div>
+                  <div class="param-item">
+                    <span class="param-key">Total Tokens:</span>
+                    <span class="param-value">{{ selectedApiPayload.response_received_from_openrouter.raw_response.usage.total_tokens }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Response Content -->
+              <div v-if="getResponseContent()" class="api-subsection">
+                <div class="subsection-label">Response Content</div>
+                <div class="api-code-block">
+                  <pre><code>{{ getResponseContent() }}</code></pre>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -457,6 +546,53 @@ const openApiPayloadModal = (item: Conversation | FollowUpMessage) => {
 const closeApiPayloadModal = () => {
   showApiPayloadModal.value = false
   selectedApiPayload.value = null
+}
+
+// Helper functions for API payload formatting
+const getSystemPrompt = (): string => {
+  const messages = selectedApiPayload.value?.request_sent_to_openrouter?.messages
+  if (!messages || !Array.isArray(messages)) return ''
+  
+  const systemMessage = messages.find((msg: any) => msg.role === 'system')
+  return systemMessage?.content || ''
+}
+
+const getUserPrompts = (): Array<{ type: string; content?: string; url?: string; detail?: string }> => {
+  const messages = selectedApiPayload.value?.request_sent_to_openrouter?.messages
+  if (!messages || !Array.isArray(messages)) return []
+  
+  const userMessage = messages.find((msg: any) => msg.role === 'user')
+  if (!userMessage || !userMessage.content || !Array.isArray(userMessage.content)) return []
+  
+  return userMessage.content.map((item: any) => {
+    if (item.type === 'text') {
+      return {
+        type: 'text',
+        content: item.text
+      }
+    } else if (item.type === 'image_url' && item.image_url) {
+      return {
+        type: 'image_url',
+        url: item.image_url.url || item.image_url,
+        detail: item.image_url.detail || 'high'
+      }
+    }
+    return { type: 'unknown' }
+  }).filter((item: any) => item.type !== 'unknown')
+}
+
+const getResponseContent = (): string => {
+  const response = selectedApiPayload.value?.response_received_from_openrouter?.raw_response
+  if (!response || !response.choices || !Array.isArray(response.choices)) return ''
+  
+  const firstChoice = response.choices[0]
+  return firstChoice?.message?.content || ''
+}
+
+const truncateUrl = (url: string): string => {
+  if (!url) return 'N/A'
+  if (url.length <= 60) return url
+  return url.substring(0, 30) + '...' + url.substring(url.length - 27)
 }
 </script>
 
@@ -1135,6 +1271,153 @@ const closeApiPayloadModal = () => {
 .api-no-data p {
   font-size: 1rem;
   margin: 0;
+}
+
+/* API Payload Formatting */
+.api-subsection {
+  margin-top: 1.5rem;
+}
+
+.api-subsection:first-child {
+  margin-top: 0;
+}
+
+.subsection-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.subsection-value {
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.user-prompt-item {
+  margin-bottom: 1rem;
+}
+
+.user-prompt-item:last-child {
+  margin-bottom: 0;
+}
+
+.prompt-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.prompt-text .api-code-block {
+  margin-top: 0.5rem;
+}
+
+.prompt-image {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-url-display {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+
+.image-detail {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.image-detail:last-child {
+  margin-bottom: 0;
+}
+
+.image-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.8125rem;
+  word-break: break-all;
+}
+
+.image-link:hover {
+  text-decoration: underline;
+}
+
+.parameters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.param-key {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.param-value {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.response-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metadata-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metadata-value {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #1f2937;
 }
 
 /* Responsive */
