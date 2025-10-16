@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, defineProps } from 'vue'
 import type { Conversation } from './types/index'
 
 const isProcessing = ref(false);
@@ -117,6 +117,7 @@ interface Props {
   conversations: Conversation[]
   date: string
   loading?: boolean
+  updateChatInTimelineCard: Conversation | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -173,6 +174,22 @@ const closeModal = () => {
 const openScreenshot = (url: string) => {
   window.open(url, '_blank')
 }
+
+watch(
+  () => props.updateChatInTimelineCard,
+  (newValue) => {
+    if (newValue) {
+      // console.log('Child received new AI response/update:', newValue);
+        question.value = '';
+    } else {
+      // console.log('Child received null/clear signal from parent.');
+    }
+    isProcessing.value = false;
+  },
+  { 
+    immediate: true 
+  }
+);
 
 // Close modal on Escape key
 watch(() => props.isOpen, (isOpen) => {
