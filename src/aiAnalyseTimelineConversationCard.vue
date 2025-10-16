@@ -51,36 +51,36 @@
             <div class="conversation-label">Answer:</div>
             <div class="conversation-text" v-html="convertTextToHtml(conv.response)"></div>
           </div>
-          <!--start-->
-          <div class="input-section">
-            <div class="input-container">
-              <textarea
-                v-model="question"
-                placeholder="Ask a question about what you see on the page..."
-                class="question-input"
-                rows="2"
-                @keydown.ctrl.enter="submitQuestion"
-                @keydown.meta.enter="submitQuestion"
-              ></textarea>
-              <button 
-                @click="submitQuestion" 
-                :disabled="!question.trim() || isProcessing"
-                class="submit-button"
-              >
-                <svg v-if="isProcessing" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="loading-icon">
-                  <path d="M21 12a9 9 0 11-6.219-8.56"/>
-                </svg>
-                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="22" y1="2" x2="11" y2="13"/>
-                  <polygon points="22,2 15,22 11,13 2,9 22,2"/>
-                </svg>
-              </button>
-            </div>
-            <p class="input-hint">Press Ctrl+Enter to send • Screenshots are automatically included</p>
-          </div>
-          <!-- end -->
         </div>
       </div>
+      <!--start-->
+      <div class="input-section">
+        <div class="input-container">
+          <textarea
+            v-model="question"
+            placeholder="Ask a question about what you see on the page..."
+            class="question-input"
+            rows="2"
+            @keydown.ctrl.enter="submitQuestion"
+            @keydown.meta.enter="submitQuestion"
+          ></textarea>
+          <button 
+            @click="submitQuestion" 
+            :disabled="!question.trim() || isProcessing"
+            class="submit-button"
+          >
+            <svg v-if="isProcessing" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="loading-icon">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22,2 15,22 11,13 2,9 22,2"/>
+            </svg>
+          </button>
+        </div>
+        <p class="input-hint">Press Ctrl+Enter to send • Screenshots are automatically included</p>
+      </div>
+      <!-- end -->
     </div>
   </div>
 </template>
@@ -93,8 +93,8 @@ const isProcessing = ref(false);
 const question = ref('')
 const latestScreenshotUrl = computed((): string | undefined => {
   if (props.conversations && props.conversations.length > 0) {
-    const latestConv = props.conversations[props.conversations.length - 1];
-    return latestConv.screenshot_url ?? undefined; 
+    const firstConv = props.conversations[0];
+    return firstConv.screenshot_url ?? undefined;
   }
   return undefined;
 });
